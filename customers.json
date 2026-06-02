@@ -1,0 +1,17 @@
+[
+  {
+    "id": "mr-b",
+    "name": "Mr B",
+    "accounts": ["A1", "A2"]
+  },
+  {
+    "id": "wife-b",
+    "name": "Wife B",
+    "accounts": ["A1"]
+  },
+  {
+    "id": "child-b1",
+    "name": "Child B1",
+    "accounts": ["A1"]
+  }
+]
