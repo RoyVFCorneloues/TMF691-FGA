@@ -20,20 +20,11 @@ const axios = require('axios');
 const app = express();
 const port = 3000;
 
-/**
- * =============================================================================
- * MOCK DATA (Simulating TMF or backend system)
- * -----------------------------------------------------------------------------
- * In a real implementation, this would be replaced with:
- * - TMF APIs
- * - Data services
- * - Domain-specific microservices
- * =============================================================================
- */
 const fs = require('fs');
 const path = require('path');
 
 let subscriptions = [];
+let customers = [];
 
 /**
  * ============================================================================
@@ -56,6 +47,30 @@ function loadSubscriptions() {
 
   } catch (err) {
     console.error("❌ Failed to load subscriptions:", err.message);
+  }
+}
+
+/**
+ * ============================================================================
+ * LOAD CUSTOMERS FROM FILE
+ * ----------------------------------------------------------------------------
+ * Reads customers.json from disk and loads into memory
+ *
+ * Returns:
+ *   Updates in-memory customers array
+ * ============================================================================
+ */
+function loadCustomers() {
+  try {
+    const filePath = path.join(__dirname, 'customers.json');
+
+    const data = fs.readFileSync(filePath, 'utf-8');
+    customers = JSON.parse(data);
+
+    console.log(`✅ Customers loaded (${customers.length} records)`);
+
+  } catch (err) {
+    console.error("❌ Failed to load customers:", err.message);
   }
 }
 
@@ -217,6 +232,25 @@ app.get('/subscription/:id', (req, res) => {
 
 /**
  * ============================================================================
+ * GET CUSTOMER BY ID
+ * ----------------------------------------------------------------------------
+ * Returns customer record from in-memory dataset
+ *
+ * GET /customer/{id}
+ * ============================================================================
+ */
+app.get('/customer/:id', (req, res) => {
+  const customer = customers.find(c => c.id === req.params.id);
+
+  if (!customer) {
+    return res.status(404).json({ error: "Customer not found" });
+  }
+
+  res.json(customer);
+});
+
+/**
+ * ============================================================================
  * BUILD USER ASSETS (CORE LOGIC)
  * ----------------------------------------------------------------------------
  * Central reusable function used by both API and demo endpoints
@@ -369,7 +403,36 @@ fs.watchFile(path.join(__dirname, 'subscriptions.json'), () => {
 });
 */
 
+/**
+ * ============================================================================
+ * RELOAD CUSTOMERS
+ * ----------------------------------------------------------------------------
+ * Reloads customers.json into memory without restarting server
+ *
+ * GET /reload-customers
+ *
+ * Returns:
+ *   Success message + record count
+ * ============================================================================
+ */
+app.get('/reload-customers', (req, res) => {
+  try {
+    loadCustomers();
+
+    res.json({
+      message: "Customers reloaded ✅",
+      count: customers.length
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: "Failed to reload customers"
+    });
+  }
+});
+
 loadSubscriptions();
+loadCustomers();
 
 /**
  * =============================================================================
