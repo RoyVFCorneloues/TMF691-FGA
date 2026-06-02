@@ -1,0 +1,15 @@
+model
+  schema 1.1
+
+type user
+
+type account
+  relations
+    define owner: [user]
+    define admin: [user]
+    define collector: [user]
+
+type subscription
+  relations
+    define parent: [account]
+    define can_view: owner from parent or admin from parent or collector from parent
