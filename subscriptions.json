@@ -1,0 +1,27 @@
+[
+  {
+    "id": "S1",
+    "accountId": "A1",
+    "product": "Mobile Plan"
+  },
+  { 
+    "id": "S2",
+    "accountId": "A1",
+    "product": "Broadband"
+  },
+  { 
+    "id": "S3", 
+    "accountId": "A1",
+    "product": "SIM Only"
+  },
+  { 
+    "id": "S4",
+    "accountId": "A2", 
+    "product": "Family Plan"
+  },
+  { 
+    "id": "S5",
+    "accountId": "A3",
+    "product": "Data Plan"
+  }
+]
