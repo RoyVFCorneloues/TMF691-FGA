@@ -30,13 +30,34 @@ const port = 3000;
  * - Domain-specific microservices
  * =============================================================================
  */
-const subscriptions = [
-  { id: "S1", accountId: "A1", product: "Mobile Plan" },
-  { id: "S2", accountId: "A1", product: "Broadband" },
-  { id: "S3", accountId: "A1", product: "SIM Only" },
-  { id: "S4", accountId: "A2", product: "Family Plan" },
-  { id: "S5", accountId: "A3", product: "Data Plan" }
-];
+const fs = require('fs');
+const path = require('path');
+
+let subscriptions = [];
+
+/**
+ * ============================================================================
+ * LOAD SUBSCRIPTIONS FROM FILE
+ * ----------------------------------------------------------------------------
+ * Reads subscriptions.json from disk and loads into memory
+ *
+ * Returns:
+ *   Updates in-memory subscriptions array
+ * ============================================================================
+ */
+function loadSubscriptions() {
+  try {
+    const filePath = path.join(__dirname, 'subscriptions.json');
+
+    const data = fs.readFileSync(filePath, 'utf-8');
+    subscriptions = JSON.parse(data);
+
+    console.log(`✅ Subscriptions loaded (${subscriptions.length} records)`);
+
+  } catch (err) {
+    console.error("❌ Failed to load subscriptions:", err.message);
+  }
+}
 
 /**
  * =============================================================================
@@ -312,6 +333,43 @@ app.get('/userAssets/:userId', async (req, res) => {
     });
   }
 });
+
+/**
+ * ============================================================================
+ * RELOAD SUBSCRIPTIONS
+ * ----------------------------------------------------------------------------
+ * Reloads subscriptions.json into memory without restarting server
+ *
+ * GET /reload-subscriptions
+ *
+ * Returns:
+ *   Success message + record count
+ * ============================================================================
+ */
+app.get('/reload-subscriptions', (req, res) => {
+  try {
+    loadSubscriptions();
+
+    res.json({
+      message: "Subscriptions reloaded ✅",
+      count: subscriptions.length
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: "Failed to reload subscriptions"
+    });
+  }
+});
+
+/*
+fs.watchFile(path.join(__dirname, 'subscriptions.json'), () => {
+  console.log("🔄 subscriptions.json changed, reloading...");
+  loadSubscriptions();
+});
+*/
+
+loadSubscriptions();
 
 /**
  * =============================================================================
