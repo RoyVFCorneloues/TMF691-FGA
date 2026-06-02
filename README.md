@@ -10,15 +10,16 @@ It retrieves authorised resources via FGA, enriches them with domain data, and r
 
 ## Demo Walkthrough
 
-1. Call /token
-2. Call /test-fga/mr-b
-3. Call /userAssets/mr-b
-4. Call /userAssets-demo/mr-b
+1. `Call /token`
+2. `Call /test-fga/mr-b`
+3. `Call /userAssets/mr-b`
+4. `Call /userAssets-demo/mr-b`
 
 ---
 
 ## Architecture
-``Client Request
+```
+Client Request
 ↓
 GET /userAssets/{userId}
 ↓
@@ -30,7 +31,8 @@ Authorised Resource IDs
 ↓
 Data Enrichment (mock subscriptions)
 ↓
-userAssets[] response``
+userAssets[] response
+```
 
 ---
 
@@ -47,7 +49,7 @@ userAssets[] response``
 ## Endpoints
 
 ### Health Check
-GET /
+`GET /`
 
 Returns:
 FGA PEP API is running ✅
@@ -55,44 +57,51 @@ FGA PEP API is running ✅
 ---
 
 ### Token Test
-GET /token
+`GET /token`
 
 Returns:
+```
 {
   "token": "<access_token>"
 }
+```
 
 ---
 
 ### FGA Test
-GET /test-fga/{userId}
+`GET /test-fga/{userId}`
 
 Returns:
+```
 {
   "objects": [
     "subscription:S1",
     "subscription:S2"
   ]
 }
+```
 
 ---
 
 ### Subscription Lookup
-GET /subscription/{id}
+`GET /subscription/{id}`
 
 Returns:
+```
 {
   "id": "S1",
   "accountId": "A1",
   "product": "Mobile Plan"
 }
+```
 
 ---
 
 ### Core PEP Endpoint
-GET /userAssets/{userId}
+`GET /userAssets/{userId}`
 
 Returns:
+```
 {
   "userAssets": [
     {
@@ -104,11 +113,12 @@ Returns:
     }
   ]
 }
+```
 
 ---
 
 ### Demo Endpoint
-GET /userAssets-demo/{userId}
+`GET /userAssets-demo/{userId}`
 
 Returns formatted HTML for browser viewing.
 
@@ -120,10 +130,10 @@ Returns formatted HTML for browser viewing.
    GET /userAssets/mr-b
 
 2. PEP calls FGA:
-   ListObjects(user, relation=can_view, type=subscription)
+   `ListObjects(user, relation=can_view, type=subscription)`
 
 3. FGA returns:
-   ["subscription:S1", "subscription:S2"]
+   `["subscription:S1", "subscription:S2"]`
 
 4. API enriches via subscription data
 
@@ -134,10 +144,10 @@ Returns formatted HTML for browser viewing.
 ## Setup
 
 Install dependencies:
-npm install
+`npm install`
 
 Run:
-node app.js
+`node app.js`
 
 ---
 
@@ -145,11 +155,13 @@ node app.js
 
 Create a `.env` file:
 
+```
 FGA_API_URL=https://api.eu1.fga.dev  
 FGA_STORE_ID=YOUR_STORE_ID  
 FGA_MODEL_ID=YOUR_MODEL_ID  
 FGA_CLIENT_ID=YOUR_CLIENT_ID  
 FGA_CLIENT_SECRET=YOUR_CLIENT_SECRET  
+```
 
 ---
 
