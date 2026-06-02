@@ -1,0 +1,34 @@
+{
+  "delete": [
+    {
+      "user": "account:A1",
+      "relation": "parent",
+      "object": "subscription:S5"
+    },
+    {
+      "user": "account:A1",
+      "relation": "parent",
+      "object": "subscription:S4"
+    },
+    {
+      "user": "account:A1",
+      "relation": "parent",
+      "object": "subscription:S3"
+    },
+    {
+      "user": "account:A1",
+      "relation": "parent",
+      "object": "subscription:S2"
+    },
+    {
+      "user": "account:A1",
+      "relation": "parent",
+      "object": "subscription:S1"
+    },
+    {
+      "user": "user:child-b1",
+      "relation": "collector",
+      "object": "account:A1"
+    }
+  ]
+}
