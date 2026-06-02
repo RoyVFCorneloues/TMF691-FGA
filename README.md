@@ -36,6 +36,32 @@ userAssets[] response
 
 ---
 
+## External Data Source (Subscriptions)
+
+For demonstration purposes, subscription data is no longer hardcoded in the application.
+
+Instead, it is stored in an external file:
+
+subscriptions.json
+
+Example:
+
+```json
+[
+  {
+    "id": "S1",
+    "accountId": "A1",
+    "product": "Mobile Plan"
+  },
+  {
+    "id": "S2",
+    "accountId": "A1",
+    "product": "Broadband"
+  }
+]
+```
+---
+
 ## Key Concept
 
 | Layer | Responsibility |
@@ -60,7 +86,7 @@ FGA PEP API is running ✅
 `GET /token`
 
 Returns:
-```
+```json
 {
   "token": "<access_token>"
 }
@@ -72,7 +98,7 @@ Returns:
 `GET /test-fga/{userId}`
 
 Returns:
-```
+```json
 {
   "objects": [
     "subscription:S1",
@@ -87,7 +113,7 @@ Returns:
 `GET /subscription/{id}`
 
 Returns:
-```
+```json
 {
   "id": "S1",
   "accountId": "A1",
@@ -101,7 +127,7 @@ Returns:
 `GET /userAssets/{userId}`
 
 Returns:
-```
+```json
 {
   "userAssets": [
     {
