@@ -1,13 +1,13 @@
 /**
  * =============================================================================
- * FGA PEP Proof-of-Concept API
+ * FGA PEP Proof-of-Concept API (Refactored)
  * -----------------------------------------------------------------------------
- * This service demonstrates a Policy Enforcement Point (PEP) pattern:
+ * Responsibilities:
+ *   - Define API endpoints
+ *   - Delegate logic to services and repositories
  *
- * 1. Receives a user request (party/user ID)
- * 2. Calls FGA (Policy Decision Point) to retrieve authorised resources
- * 3. Enriches those resources with local data (mock TMF dataset)
- * 4. Returns structured `userAssets` response
+ * Architecture:
+ *   app.js → service → FGA + repositories
  *
  * =============================================================================
  */
@@ -15,75 +15,38 @@
 require('dotenv').config();
 
 const express = require('express');
-const axios = require('axios');
 
 const app = express();
 const port = 3000;
 
-const fs = require('fs');
-const path = require('path');
-
-let subscriptions = [];
-let customers = [];
-
 /**
- * ============================================================================
- * LOAD SUBSCRIPTIONS FROM FILE
- * ----------------------------------------------------------------------------
- * Reads subscriptions.json from disk and loads into memory
- *
- * Returns:
- *   Updates in-memory subscriptions array
- * ============================================================================
+ * =============================================================================
+ * IMPORT MODULES
+ * =============================================================================
  */
-function loadSubscriptions() {
-  try {
-    const filePath = path.join(__dirname, 'subscriptions.json');
 
-    const data = fs.readFileSync(filePath, 'utf-8');
-    subscriptions = JSON.parse(data);
+// Repositories (data access)
+const subscriptionRepository = require('./src/repositories/subscriptionRepository');
+const customerRepository = require('./src/repositories/customerRepository');
 
-    console.log(`✅ Subscriptions loaded (${subscriptions.length} records)`);
+// FGA client (PDP)
+const fgaClient = require('./src/fga/fgaClient');
 
-  } catch (err) {
-    console.error("❌ Failed to load subscriptions:", err.message);
-  }
-}
-
-/**
- * ============================================================================
- * LOAD CUSTOMERS FROM FILE
- * ----------------------------------------------------------------------------
- * Reads customers.json from disk and loads into memory
- *
- * Returns:
- *   Updates in-memory customers array
- * ============================================================================
- */
-function loadCustomers() {
-  try {
-    const filePath = path.join(__dirname, 'customers.json');
-
-    const data = fs.readFileSync(filePath, 'utf-8');
-    customers = JSON.parse(data);
-
-    console.log(`✅ Customers loaded (${customers.length} records)`);
-
-  } catch (err) {
-    console.error("❌ Failed to load customers:", err.message);
-  }
-}
+// Service layer (PEP orchestration)
+const userAssetsService = require('./src/services/userAssetsService');
 
 /**
  * =============================================================================
- * HEALTH CHECK ENDPOINT
- * -----------------------------------------------------------------------------
- * Simple endpoint to confirm API is running
- *
- * GET /
- *
- * Returns:
- *   String message
+ * INITIALISE DATA SOURCES
+ * =============================================================================
+ */
+
+subscriptionRepository.init();
+customerRepository.init();
+
+/**
+ * =============================================================================
+ * HEALTH CHECK
  * =============================================================================
  */
 app.get('/', (req, res) => {
@@ -92,57 +55,19 @@ app.get('/', (req, res) => {
 
 /**
  * =============================================================================
- * GET FGA ACCESS TOKEN
- * -----------------------------------------------------------------------------
- * Exchanges client credentials for an OAuth access token used to call FGA APIs
- *
- * Requires:
- *   - FGA_CLIENT_ID
- *   - FGA_CLIENT_SECRET
- *
- * Returns:
- *   String access token
- * =============================================================================
- */
-async function getToken() {
-  try {
-    const response = await axios.post(
-      'https://auth.fga.dev/oauth/token',
-      {
-        client_id: process.env.FGA_CLIENT_ID,
-        client_secret: process.env.FGA_CLIENT_SECRET,
-        audience: "https://api.eu1.fga.dev/",
-        grant_type: "client_credentials"
-      },
-      {
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
-    return response.data.access_token;
-
-  } catch (error) {
-    console.error("❌ Token Error:", error.response?.data || error.message);
-    throw error;
-  }
-}
-
-/**
- * =============================================================================
- * TEST TOKEN ENDPOINT
- * -----------------------------------------------------------------------------
- * Used for debugging authentication with FGA
- *
- * GET /token
- *
- * Returns:
- *   { token: "<access_token>" }
+ * TEST TOKEN (delegated to FGA client)
  * =============================================================================
  */
 app.get('/token', async (req, res) => {
   try {
-    const token = await getToken();
-    res.json({ token });
+    // exposed via listObjects call (forces token fetch)
+    const objects = await fgaClient.listObjects("mr-b", "can_view", "subscription");
+
+    res.json({
+      message: "Token acquired successfully ✅",
+      sample: objects
+    });
+
   } catch (err) {
     res.status(500).json({
       error: err.response?.data || err.message
@@ -152,56 +77,15 @@ app.get('/token', async (req, res) => {
 
 /**
  * =============================================================================
- * GET AUTHORISED SUBSCRIPTIONS FROM FGA
- * -----------------------------------------------------------------------------
- * Calls FGA ListObjects API to retrieve all subscriptions a user can view
- *
- * @param {string} userId - The user (party) identifier
- *
- * Returns:
- *   Array of strings (e.g. ["subscription:S1", "subscription:S2"])
- * =============================================================================
- */
-async function getSubscriptions(userId) {
-  const token = await getToken();
-
-  const response = await axios.post(
-    `${process.env.FGA_API_URL}/stores/${process.env.FGA_STORE_ID}/list-objects`,
-    {
-      user: `user:${userId}`,
-      relation: "can_view",
-      type: "subscription",
-      authorization_model_id: process.env.FGA_MODEL_ID
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    }
-  );
-
-  return response.data.objects;
-}
-
-/**
- * =============================================================================
- * TEST FGA ENDPOINT
- * -----------------------------------------------------------------------------
- * Debug endpoint to verify FGA integration
- *
- * GET /test-fga/{userId}
- *
- * Returns:
- *   { objects: ["subscription:S1", ...] }
+ * TEST FGA
  * =============================================================================
  */
 app.get('/test-fga/:userId', async (req, res) => {
   try {
-    const objects = await getSubscriptions(req.params.userId);
+    const objects = await fgaClient.getUserSubscriptions(req.params.userId);
     res.json({ objects });
+
   } catch (err) {
-    console.error("FGA ERROR:", err.response?.data || err.message);
     res.status(500).json({
       error: err.response?.data || err.message
     });
@@ -210,18 +94,11 @@ app.get('/test-fga/:userId', async (req, res) => {
 
 /**
  * =============================================================================
- * GET SUBSCRIPTION BY ID
- * -----------------------------------------------------------------------------
- * Mock endpoint representing a backend service
- *
- * GET /subscription/{id}
- *
- * Returns:
- *   Subscription object or 404
+ * SUBSCRIPTION LOOKUP (via repository)
  * =============================================================================
  */
 app.get('/subscription/:id', (req, res) => {
-  const sub = subscriptions.find(s => s.id === req.params.id);
+  const sub = subscriptionRepository.findById(req.params.id);
 
   if (!sub) {
     return res.status(404).json({ error: "Not found" });
@@ -231,16 +108,12 @@ app.get('/subscription/:id', (req, res) => {
 });
 
 /**
- * ============================================================================
- * GET CUSTOMER BY ID
- * ----------------------------------------------------------------------------
- * Returns customer record from in-memory dataset
- *
- * GET /customer/{id}
- * ============================================================================
+ * =============================================================================
+ * CUSTOMER LOOKUP (via repository)
+ * =============================================================================
  */
 app.get('/customer/:id', (req, res) => {
-  const customer = customers.find(c => c.id === req.params.id);
+  const customer = customerRepository.findById(req.params.id);
 
   if (!customer) {
     return res.status(404).json({ error: "Customer not found" });
@@ -250,54 +123,31 @@ app.get('/customer/:id', (req, res) => {
 });
 
 /**
- * ============================================================================
- * BUILD USER ASSETS (CORE LOGIC)
- * ----------------------------------------------------------------------------
- * Central reusable function used by both API and demo endpoints
- *
- * @param {string} userId
- * @returns {Array} userAssets[]
- * ============================================================================
+ * =============================================================================
+ * MAIN PEP ENDPOINT
+ * =============================================================================
  */
-async function buildUserAssets(userId) {
-  const objects = await getSubscriptions(userId);
+app.get('/userAssets/:userId', async (req, res) => {
+  try {
+    const userAssets = await userAssetsService.buildUserAssets(req.params.userId);
 
-  const userAssets = objects
-    .map(obj => {
-      const [type, id] = obj.split(":");
+    res.json({ userAssets });
 
-      const sub = subscriptions.find(s => s.id === id);
-      if (!sub) return null;
-
-      return {
-        id: sub.id,
-        entityType: type,
-        accountId: sub.accountId,
-        product: sub.product,
-        entitlements: ["can_view"]
-      };
-    })
-    .filter(Boolean);
-
-  return userAssets;
-}
+  } catch (err) {
+    res.status(500).json({
+      error: "Failed to retrieve user assets"
+    });
+  }
+});
 
 /**
- * ============================================================================
- * DEMO ENDPOINT (STRINGIFIED OUTPUT)
- * ----------------------------------------------------------------------------
- * Wraps the core userAssets endpoint and returns formatted output
- * for browser/demo purposes
- *
- * GET /userAssets-demo/{userId}
- *
- * Returns:
- *   Pretty-formatted JSON inside HTML
- * ============================================================================
+ * =============================================================================
+ * DEMO ENDPOINT (HTML FORMAT)
+ * =============================================================================
  */
 app.get('/userAssets-demo/:userId', async (req, res) => {
   try {
-    const userAssets = await buildUserAssets(req.params.userId);
+    const userAssets = await userAssetsService.buildUserAssets(req.params.userId);
 
     res.send(`
       <html>
@@ -305,12 +155,10 @@ app.get('/userAssets-demo/:userId', async (req, res) => {
           <title>User Assets Demo</title>
           <style>
             body { font-family: Arial; padding: 20px; }
-            h1 { color: #333; }
             pre {
               background: #f4f4f4;
               padding: 15px;
               border-radius: 5px;
-              overflow-x: auto;
             }
           </style>
         </head>
@@ -328,111 +176,26 @@ app.get('/userAssets-demo/:userId', async (req, res) => {
 
 /**
  * =============================================================================
- * MAIN PEP ENDPOINT: USER ASSETS
- * -----------------------------------------------------------------------------
- * Orchestrates the full PEP flow:
- *
- * 1. Calls FGA to retrieve authorised subscriptions
- * 2. Maps FGA resource IDs to internal data
- * 3. Transforms results into userAssets structure
- *
- * GET /userAssets/{userId}
- *
- * Parameters:
- *   userId (path) - user/party identifier
- *
- * Returns:
- *   {
- *     userAssets: [
- *       {
- *         id,
- *         entityType,
- *         accountId,
- *         product,
- *         entitlements[]
- *       }
- *     ]
- *   }
+ * RELOAD DATA
  * =============================================================================
  */
-app.get('/userAssets/:userId', async (req, res) => {
-  try {
-    const userAssets = await buildUserAssets(req.params.userId);
-
-    res.json({ userAssets });
-
-  } catch (err) {
-    res.status(500).json({
-      error: "Failed to retrieve user assets"
-    });
-  }
-});
-
-/**
- * ============================================================================
- * RELOAD SUBSCRIPTIONS
- * ----------------------------------------------------------------------------
- * Reloads subscriptions.json into memory without restarting server
- *
- * GET /reload-subscriptions
- *
- * Returns:
- *   Success message + record count
- * ============================================================================
- */
 app.get('/reload-subscriptions', (req, res) => {
-  try {
-    loadSubscriptions();
+  const count = subscriptionRepository.reloadSubscriptions();
 
-    res.json({
-      message: "Subscriptions reloaded ✅",
-      count: subscriptions.length
-    });
-
-  } catch (err) {
-    res.status(500).json({
-      error: "Failed to reload subscriptions"
-    });
-  }
+  res.json({
+    message: "Subscriptions reloaded ✅",
+    count
+  });
 });
 
-/*
-fs.watchFile(path.join(__dirname, 'subscriptions.json'), () => {
-  console.log("🔄 subscriptions.json changed, reloading...");
-  loadSubscriptions();
-});
-*/
-
-/**
- * ============================================================================
- * RELOAD CUSTOMERS
- * ----------------------------------------------------------------------------
- * Reloads customers.json into memory without restarting server
- *
- * GET /reload-customers
- *
- * Returns:
- *   Success message + record count
- * ============================================================================
- */
 app.get('/reload-customers', (req, res) => {
-  try {
-    loadCustomers();
+  const count = customerRepository.reloadCustomers();
 
-    res.json({
-      message: "Customers reloaded ✅",
-      count: customers.length
-    });
-
-  } catch (err) {
-    res.status(500).json({
-      error: "Failed to reload customers"
-    });
-  }
+  res.json({
+    message: "Customers reloaded ✅",
+    count
+  });
 });
-
-loadSubscriptions();
-loadCustomers();
 
 /**
  * =============================================================================
