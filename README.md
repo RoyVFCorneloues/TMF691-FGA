@@ -165,18 +165,6 @@ FGA_CLIENT_SECRET=YOUR_CLIENT_SECRET
 
 ---
 
-## Example .env File
-
-Create `.env.example`:
-
-FGA_API_URL=https://api.eu1.fga.dev  
-FGA_STORE_ID=REPLACE_ME  
-FGA_MODEL_ID=REPLACE_ME  
-FGA_CLIENT_ID=REPLACE_ME  
-FGA_CLIENT_SECRET=REPLACE_ME  
-
----
-
 ## Security Notes
 
 - Do not commit `.env`
