@@ -1,5 +1,5 @@
 {
-  "create": [
+  "write": [
     {
       "user": "account:A1",
       "relation": "parent",
