@@ -204,21 +204,32 @@ async function writeTupleBatch({ writes = [], deletes = [] } = {}) {
   try {
     const token = await getToken();
 
+    const payload = {
+      writes: {
+        tuple_keys: writes.map(t => ({
+          user: t.user,
+          relation: t.relation,
+          object: t.object
+        }))
+      },
+      deletes: {
+        tuple_keys: deletes.map(t => ({
+          user: t.user,
+          relation: t.relation,
+          object: t.object
+        }))
+      },
+      authorization_model_id: process.env.FGA_MODEL_ID
+    };
+    
+    // 🔍 DEBUG: print payload
+    console.log("\n📤 FGA WRITE PAYLOAD:");
+    console.log(JSON.stringify(payload, null, 2));
+    
+    // USE payload here
     const response = await axios.post(
       `${process.env.FGA_API_URL}/stores/${process.env.FGA_STORE_ID}/write`,
-      {
-        writes: writes.map(t => ({
-          user: t.user,
-          relation: t.relation,
-          object: t.object
-        })),
-        deletes: deletes.map(t => ({
-          user: t.user,
-          relation: t.relation,
-          object: t.object
-        })),
-        authorization_model_id: process.env.FGA_MODEL_ID
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${token}`,
