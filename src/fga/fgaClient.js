@@ -205,20 +205,16 @@ async function writeTupleBatch({ writes = [], deletes = [] } = {}) {
     const token = await getToken();
 
     const payload = {
-      writes: {
-        tuple_keys: writes.map(t => ({
-          user: t.user,
-          relation: t.relation,
-          object: t.object
-        }))
-      },
-      deletes: {
-        tuple_keys: deletes.map(t => ({
-          user: t.user,
-          relation: t.relation,
-          object: t.object
-        }))
-      },
+      writes: writes.map(t => ({
+        user: t.user,
+        relation: t.relation,
+        object: t.object
+      })),
+      deletes: deletes.map(t => ({
+        user: t.user,
+        relation: t.relation,
+        object: t.object
+      })),
       authorization_model_id: process.env.FGA_MODEL_ID
     };
     
