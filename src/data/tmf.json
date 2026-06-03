@@ -1,0 +1,37 @@
+{
+  "party": [
+    { "id": "mr-b" },
+    { "id": "wife-b" },
+    { "id": "child-b1" }
+  ],
+  "account": [
+    {
+      "id": "A1",
+      "name": "Household Account"
+    }
+  ],
+  "partyRole": [
+    {
+      "partyId": "mr-b",
+      "accountId": "A1",
+      "role": "owner"
+    },
+    {
+      "partyId": "wife-b",
+      "accountId": "A1",
+      "role": "owner"
+    },
+    {
+      "partyId": "child-b1",
+      "accountId": "A1",
+      "role": "collector"
+    }
+  ],
+  "subscription": [
+    { "id": "S1", "accountId": "A1" },
+    { "id": "S2", "accountId": "A1" },
+    { "id": "S3", "accountId": "A1" },
+    { "id": "S4", "accountId": "A1" },
+    { "id": "S5", "accountId": "A1" }
+  ]
+}
