@@ -1,6 +1,8 @@
 const path = require('path');
 const fgaClient = require('../src/fga/fgaClient');
 
+require('dotenv').config();
+
 async function run() {
   const file = process.argv[2] || 'tuples.json';
   const dryRun = process.argv.includes('--dry-run');
