@@ -6,111 +6,191 @@
 
 This project demonstrates a **Policy Enforcement Point (PEP)** pattern using Auth0 Fine Grained Authorization (FGA).
 
-It retrieves authorised resources via FGA, enriches them with domain data, and returns a structured `userAssets` response.
+It retrieves authorised resources via FGA, enriches them with domain data, and returns a structured `userAssets` response without requiring OIDC userInfo.
 
-## Demo Walkthrough
-
-1. `Call /token`
-2. `Call /test-fga/mr-b`
-3. `Call /userAssets/mr-b`
-4. `Call /userAssets-demo/mr-b`
+**Key Features:**
+- FGA-driven authorization (ListObjects)
+- Multi-repository data abstraction (subscriptions, customers, TMF data)
+- Tuple management with validation and dry-run support
+- Service layer orchestration
+- Demo endpoints for browser testing
 
 ---
 
 ## Architecture
+
 ```
 Client Request
-↓
+    ↓
 GET /userAssets/{userId}
-↓
+    ↓
 PEP (this API)
-↓
-FGA (ListObjects)
-↓
-Authorised Resource IDs
-↓
-Data Enrichment (mock subscriptions)
-↓
+    ├→ FGA ListObjects Query (policy decision)
+    ├→ Data Enrichment (repositories)
+    └→ Response Shape
+    ↓
 userAssets[] response
+```
+
+### Data Flow
+
+| Component | Responsibility |
+|-----------|-----------------|
+| **FGA** | Determines which resources user can access |
+| **PEP** | Orchestrates calls, enriches data, shapes response |
+| **Repositories** | Abstract data access (subscriptions, customers, TMF data) |
+| **Services** | Business logic (user assets, tuple building) |
+
+---
+
+## Project Structure
+
+```
+.
+├── app.js                              # Main Express application & endpoints
+├── package.json                        # Dependencies
+├── src/
+│   ├── fga/
+│   │   └── fgaClient.js               # FGA API communication (Auth0 SDK wrapper)
+│   ├── services/
+│   │   ├── userAssetsService.js       # Orchestrate user assets retrieval
+│   │   └── tupleTMFBuilderService.js  # Generate FGA tuples from TMF data
+│   ├── repositories/
+│   │   ├── subscriptionRepository.js  # Subscription data access
+│   │   ├── customerRepository.js      # Customer/party data access
+│   │   └── tmfRepository.js           # TMF domain model data access
+│   └── data/
+│       ├── subscriptions.json         # Mock subscription records
+│       ├── customers.json             # Mock customer/party records
+│       └── tmfData.json               # TMF domain model (accounts, roles, subscriptions)
+├── .gitignore                          # Ignore node_modules and .env
+└── README.md                           # This file
 ```
 
 ---
 
-## External Data Source (Subscriptions)
+## Core Concepts
 
-For demonstration purposes, subscription data is no longer hardcoded in the application.
+### 1. Policy Enforcement Point (PEP)
 
-Instead, it is stored in an external file:
+The API acts as a PEP by:
+- **Delegating authorization** to FGA (policy decision)
+- **Enriching responses** with business data
+- **Shaping responses** according to API contract
 
-subscriptions.json
+### 2. External Data Sources
 
-Example:
+For demonstration purposes, data is stored in external JSON files:
 
+**subscriptions.json** – Product subscriptions with account relationships
 ```json
 [
   {
     "id": "S1",
     "accountId": "A1",
     "product": "Mobile Plan"
-  },
-  {
-    "id": "S2",
-    "accountId": "A1",
-    "product": "Broadband"
   }
 ]
 ```
----
 
-## Key Concept
+**customers.json** – Parties/customers with account relationships
+```json
+[
+  {
+    "id": "mr-b",
+    "name": "Mr B",
+    "accounts": ["A1", "A2"]
+  }
+]
+```
 
-| Layer | Responsibility |
-|------|----------------|
-| FGA | Determines which resources are accessible |
-| PEP | Enriches and shapes the response |
-| Data Layer | Provides domain data (subscriptions) |
+**tmfData.json** – TMF domain model for tuple generation
+```json
+{
+  "party": [...],
+  "account": [...],
+  "partyRole": [...],
+  "subscription": [...]
+}
+```
+
+### 3. Tuple Management
+
+FGA relationships are managed via **tuple plans** (write/delete operations):
+
+```javascript
+{
+  "write": [
+    { "user": "user:mr-b", "relation": "owner", "object": "account:A1" },
+    { "user": "account:A1", "relation": "parent", "object": "subscription:S1" }
+  ],
+  "delete": []
+}
+```
+
+Tuples are:
+- **Validated** before writing (checks existence)
+- **Loadable from files** for bulk operations
+- **Testable via dry-run** before commitment
 
 ---
 
 ## Endpoints
 
 ### Health Check
-`GET /`
-
-Returns:
-FGA PEP API is running ✅
+```
+GET /
+```
+Returns: `FGA PEP API is running ✅`
 
 ---
 
 ### Token Test
-`GET /token`
+```
+GET /token
+```
+Fetches and returns an access token for FGA API calls.
 
 Returns:
 ```json
 {
-  "token": "<access_token>"
+  "message": "Token acquired successfully ✅",
+  "sample": ["subscription:S1", "subscription:S2"]
 }
 ```
 
 ---
 
-### FGA Test
-`GET /test-fga/{userId}`
+### FGA Query Test
+```
+GET /test-fga/{userId}
+```
+Queries FGA directly to show which subscriptions a user can view.
+
+Example:
+```
+GET /test-fga/mr-b
+```
 
 Returns:
 ```json
 {
-  "objects": [
-    "subscription:S1",
-    "subscription:S2"
-  ]
+  "objects": ["subscription:S1", "subscription:S2", "subscription:S3"]
 }
 ```
 
 ---
 
 ### Subscription Lookup
-`GET /subscription/{id}`
+```
+GET /subscription/{id}
+```
+Retrieves a subscription by ID from the repository.
+
+Example:
+```
+GET /subscription/S1
+```
 
 Returns:
 ```json
@@ -123,8 +203,43 @@ Returns:
 
 ---
 
-### Core PEP Endpoint
-`GET /userAssets/{userId}`
+### Customer Lookup
+```
+GET /customer/{id}
+```
+Retrieves a customer/party by ID from the repository.
+
+Example:
+```
+GET /customer/mr-b
+```
+
+Returns:
+```json
+{
+  "id": "mr-b",
+  "name": "Mr B",
+  "accounts": ["A1", "A2"]
+}
+```
+
+---
+
+### Core PEP Endpoint: User Assets
+```
+GET /userAssets/{userId}
+```
+Main endpoint that orchestrates FGA authorization + data enrichment.
+
+**Flow:**
+1. Calls FGA to get authorized subscriptions
+2. Enriches each subscription with product details
+3. Returns structured `userAssets[]` response
+
+Example:
+```
+GET /userAssets/mr-b
+```
 
 Returns:
 ```json
@@ -136,6 +251,13 @@ Returns:
       "accountId": "A1",
       "product": "Mobile Plan",
       "entitlements": ["can_view"]
+    },
+    {
+      "id": "S2",
+      "entityType": "subscription",
+      "accountId": "A1",
+      "product": "Broadband",
+      "entitlements": ["can_view"]
     }
   ]
 }
@@ -143,76 +265,297 @@ Returns:
 
 ---
 
-### Demo Endpoint
-`GET /userAssets-demo/{userId}`
+### Demo Endpoint: User Assets (HTML Format)
+```
+GET /userAssets-demo/{userId}
+```
+Same as `/userAssets` but returns formatted HTML for browser viewing.
 
-Returns formatted HTML for browser viewing.
+Example:
+```
+GET /userAssets-demo/mr-b
+```
 
 ---
 
-## Flow
+### Data Management: Reload Subscriptions
+```
+GET /reload-subscriptions
+```
+Explicitly reloads subscription data from disk without restarting the server.
 
-1. Client calls:
-   GET /userAssets/mr-b
+Returns:
+```json
+{
+  "message": "Subscriptions reloaded ✅",
+  "count": 5
+}
+```
 
-2. PEP calls FGA:
-   `ListObjects(user, relation=can_view, type=subscription)`
+**Note:** File watching is enabled by default, so changes to `subscriptions.json` are automatically detected.
 
-3. FGA returns:
-   `["subscription:S1", "subscription:S2"]`
+---
 
-4. API enriches via subscription data
+### Data Management: Reload Customers
+```
+GET /reload-customers
+```
+Explicitly reloads customer data from disk without restarting the server.
 
-5. API returns structured response
+Returns:
+```json
+{
+  "message": "Customers reloaded ✅",
+  "count": 3
+}
+```
+
+**Note:** File watching is enabled by default, so changes to `customers.json` are automatically detected.
+
+---
+
+## Demo Walkthrough
+
+Try this sequence to explore the API:
+
+1. **Fetch a token:**
+   ```bash
+   curl http://localhost:3000/token
+   ```
+
+2. **Query FGA directly:**
+   ```bash
+   curl http://localhost:3000/test-fga/mr-b
+   ```
+
+3. **Get enriched user assets:**
+   ```bash
+   curl http://localhost:3000/userAssets/mr-b
+   ```
+
+4. **View in browser (demo format):**
+   ```
+   http://localhost:3000/userAssets-demo/mr-b
+   ```
 
 ---
 
 ## Setup
 
-Install dependencies:
-`npm install`
+### Prerequisites
+- Node.js 14+
+- Auth0 FGA account (free tier available at [auth0.com/fine-grained-authorization](https://auth0.com/fine-grained-authorization))
 
-Run:
-`node app.js`
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/RoyVFCorneloues/TMF691-FGA.git
+   cd TMF691-FGA
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Configure environment variables (see below)
+
+4. Run the server:
+   ```bash
+   node app.js
+   ```
+
+Server will start on `http://localhost:3000`
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file:
+Create a `.env` file in the project root:
 
+```env
+# Auth0 FGA Configuration
+FGA_API_URL=https://api.eu1.fga.dev
+FGA_STORE_ID=your_store_id
+FGA_MODEL_ID=your_model_id
+FGA_CLIENT_ID=your_client_id
+FGA_CLIENT_SECRET=your_client_secret
 ```
-FGA_API_URL=https://api.eu1.fga.dev  
-FGA_STORE_ID=YOUR_STORE_ID  
-FGA_MODEL_ID=YOUR_MODEL_ID  
-FGA_CLIENT_ID=YOUR_CLIENT_ID  
-FGA_CLIENT_SECRET=YOUR_CLIENT_SECRET  
+
+### Where to Find These Values
+
+1. Log in to [Auth0 Dashboard](https://dashboard.auth0.com)
+2. Navigate to **Fine Grained Authorization**
+3. Create a store (if not already created)
+4. Select your store and go to **Settings**
+5. Copy the Store ID and Model ID
+6. Create an API client for machine-to-machine access
+7. Copy the Client ID and Client Secret
+
+### Important Security Notes
+
+- **Never commit `.env` to version control** (already in `.gitignore`)
+- Rotate secrets if exposed
+- Use secure secret management in production (e.g., HashiCorp Vault, AWS Secrets Manager, GitHub Actions secrets)
+
+---
+
+## FGA Client Features
+
+The `fgaClient` module provides:
+
+### Authorization Queries
+- **listObjects(userId, relation, type)** – Query FGA ListObjects endpoint
+- **getUserSubscriptions(userId)** – Convenience method for subscription queries
+
+### Tuple Management
+- **readTuple(tuple)** – Query existing tuples
+- **tupleExists(tuple)** – Check if a tuple exists before writing
+- **writeTupleBatch({ writes, deletes })** – Batch write/delete operations
+- **processTuplePlan(plan, { dryRun })** – Validate and apply a tuple plan
+- **loadTuplePlanFromFile(path)** – Load tuple plans from JSON files
+- **processTuplePlanFromFile(path, { dryRun })** – Load and process tuple plans
+
+### Token Management
+- Automatic token caching with expiry handling
+- Prevents unnecessary token requests
+
+---
+
+## Data Repositories
+
+### Subscription Repository
+```javascript
+subscriptionRepository.init()           // Load and watch subscriptions.json
+subscriptionRepository.findById(id)     // Get subscription by ID
+subscriptionRepository.findByAccountId(accountId)  // Get all subscriptions for an account
+subscriptionRepository.getAll()         // Get all subscriptions
+subscriptionRepository.reloadSubscriptions()  // Explicit reload
+```
+
+### Customer Repository
+```javascript
+customerRepository.init()               // Load and watch customers.json
+customerRepository.findById(id)         // Get customer by ID
+customerRepository.getAll()             // Get all customers
+customerRepository.reloadCustomers()    // Explicit reload
+```
+
+### TMF Repository
+```javascript
+tmfRepository.load()                    // Load tmfData.json
+tmfRepository.getAccounts()             // Get account records
+tmfRepository.getSubscriptions()        // Get subscription records
+tmfRepository.getRoles()                // Get party role records
 ```
 
 ---
 
-## Security Notes
+## Services
 
-- Do not commit `.env`
-- Rotate secrets if exposed
-- Use secure storage in production (e.g. vaults or GitHub secrets)
+### User Assets Service
+Orchestrates FGA authorization + data enrichment:
+
+```javascript
+const userAssets = await userAssetsService.buildUserAssets(userId);
+```
+
+**Process:**
+1. Calls FGA to get authorized subscriptions
+2. Maps object IDs to subscription details
+3. Filters out missing subscriptions
+4. Returns enriched `userAssets[]`
+
+### Tuple TMF Builder Service
+Generates FGA tuples from TMF domain model:
+
+```javascript
+const tuples = tupleTMFBuilderService.buildTuples();
+```
+
+**Tuple Types Generated:**
+- **Account → Subscription (parent):** `account:A1 parent subscription:S1`
+- **User → Account (role):** `user:mr-b owner account:A1`
 
 ---
 
 ## Future Enhancements
 
-- Role-aware entitlements (owner/admin/collector)
-- Config-driven mapping (templates + JSONPath)
-- Replace mock data with real APIs
-- Token caching
-- OpenAPI documentation
+When moving to production:
+
+1. **Authorization & Security**
+   - Input validation on all endpoints
+   - Authentication middleware (e.g., JWT verification)
+   - Rate limiting and request throttling
+   - Audit logging for authorization decisions
+
+2. **Observability**
+   - Structured logging (JSON format with correlation IDs)
+   - Metrics collection (Prometheus-compatible)
+   - Distributed tracing support
+   - Health check endpoints
+
+3. **Data Management**
+   - Replace mock JSON data with real TMF APIs (Product, Service, Inventory)
+   - Implement subscription caching with TTL
+   - Add pagination support for large datasets
+   - Connection pooling for external APIs
+
+4. **Testing**
+   - Unit tests for repositories and services
+   - Integration tests for FGA interactions
+   - Mock FGA server for CI/CD pipelines
+   - End-to-end workflow tests
+
+5. **Performance**
+   - Query result caching
+   - Batch operations optimization
+   - Connection reuse and pooling
+   - Database indexes for lookups
+
+6. **API Design**
+   - OpenAPI/Swagger documentation
+   - API versioning strategy
+   - Proper HTTP status codes and error handling
+   - Request/response validation schemas
+
+7. **Deployment**
+   - Docker containerization
+   - Kubernetes manifests
+   - Environment-specific configuration
+   - CI/CD pipeline integration
 
 ---
 
 ## Summary
 
-This POC demonstrates:
+This PoC demonstrates:
 
-- Relationship-based access control using FGA
-- Separation of authorisation and data layers
-- Scalable PEP orchestration pattern
+- **Relationship-based access control** using Auth0 Fine Grained Authorization
+- **Separation of concerns** between authorization (FGA) and data enrichment (PEP)
+- **Scalable PEP orchestration** pattern for TMF-based systems
+- **Flexible data abstraction** supporting easy integration with real APIs
+- **Tuple management** workflows for maintaining authorization relationships
+
+The modular architecture makes it straightforward to evolve this into a production system by:
+- Adding validation and security layers
+- Replacing mock data with real API integrations
+- Implementing proper observability
+- Adding comprehensive test coverage
+
+---
+
+## References
+
+- [Auth0 Fine Grained Authorization Docs](https://fga.dev/)
+- [PEP Pattern Overview](https://fga.dev/terminology#pep)
+- [TMF OpenAPI Standards](https://www.openapis.org/)
+- [Express.js Documentation](https://expressjs.com/)
+
+---
+
+## License
+
+ISC
+
