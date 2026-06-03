@@ -205,7 +205,6 @@ async function writeTupleBatch({ writes = [], deletes = [] } = {}) {
     const token = await getToken();
 
     const payload = {
-      writes: [],
       deletes: {
         tuple_keys: deletes.map(t => ({
           user: t.user,
