@@ -11,11 +11,16 @@
  *
  *   const { processTuplePlan } = require('../authorization/tuplePlanService');
  *
+ * Assertion utilities are now in:
+ *
+ *   const { processAssertions } = require('../authorization/assertionService');
+ *
  * =============================================================================
  */
 
 const authProvider = require('../authorization');
 const tuplePlanService = require('../authorization/tuplePlanService');
+const assertionService = require('../authorization/assertionService');
 
 module.exports = {
   // AuthorizationProvider interface
@@ -25,9 +30,19 @@ module.exports = {
   tupleExists: (tuple) => authProvider.tupleExists(tuple),
   writeTupleBatch: (params) => authProvider.writeTupleBatch(params),
 
+  // Assertion methods
+  writeAssertions: (assertions) => authProvider.writeAssertions(assertions),
+  readAssertions: () => authProvider.readAssertions(),
+  clearAssertions: () => authProvider.clearAssertions(),
+
   // Tuple plan utilities (now provider-aware)
   loadTuplePlanFromFile: tuplePlanService.loadTuplePlanFromFile,
   normaliseTuplePlan: tuplePlanService.normaliseTuplePlan,
   processTuplePlan: (plan, opts) => tuplePlanService.processTuplePlan(authProvider, plan, opts),
-  processTuplePlanFromFile: (filePath, opts) => tuplePlanService.processTuplePlanFromFile(authProvider, filePath, opts)
+  processTuplePlanFromFile: (filePath, opts) => tuplePlanService.processTuplePlanFromFile(authProvider, filePath, opts),
+
+  // Assertion utilities (provider-aware)
+  loadAssertionsFromFile: assertionService.loadAssertionsFromFile,
+  processAssertions: (assertions) => assertionService.processAssertions(authProvider, assertions),
+  processAssertionsFromFile: (filePath) => assertionService.processAssertionsFromFile(authProvider, filePath)
 };

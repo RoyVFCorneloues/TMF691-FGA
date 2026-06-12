@@ -424,6 +424,28 @@ The `fgaClient` module provides:
 - **loadTuplePlanFromFile(path)** – Load tuple plans from JSON files
 - **processTuplePlanFromFile(path, { dryRun })** – Load and process tuple plans
 
+### Assertion Management (Developer Mode)
+Assertions are model-scoped test artefacts used to verify that expected access outcomes are correctly enforced. They are **not** part of the runtime authorisation flow.
+
+- **writeAssertions(assertions)** – Replace all assertions for the active authorization model
+- **readAssertions()** – Retrieve current assertions for the active authorization model
+- **clearAssertions()** – Remove all assertions (writes an empty assertions array)
+- **loadAssertionsFromFile(path)** – Load assertions from a JSON file
+- **processAssertions(assertions)** – Clear existing assertions then write the new ones
+- **processAssertionsFromFile(path)** – Load from file, clear existing, then write new assertions
+
+Assertions JSON file format:
+```json
+{
+  "assertions": [
+    {
+      "tuple_key": { "user": "user:anne", "relation": "reader", "object": "document:roadmap" },
+      "expectation": true
+    }
+  ]
+}
+```
+
 ### Token Management
 - Automatic token caching with expiry handling
 - Prevents unnecessary token requests
