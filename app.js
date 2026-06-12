@@ -29,11 +29,12 @@ const port = 3000;
 const subscriptionRepository = require('./src/repositories/subscriptionRepository');
 const customerRepository = require('./src/repositories/customerRepository');
 
-// FGA client (PDP)
-const fgaClient = require('./src/fga/fgaClient');
+// Authorization provider (PDP) – selected via AUTH_PROVIDER env var (default: auth0)
+const authProvider = require('./src/authorization');
 
-// Service layer (PEP orchestration)
-const userAssetsService = require('./src/services/userAssetsService');
+// Service layer (PEP orchestration) – wired with the authorization provider
+const { createUserAssetsService } = require('./src/services/userAssetsService');
+const userAssetsService = createUserAssetsService(authProvider);
 
 /**
  * =============================================================================
@@ -60,8 +61,8 @@ app.get('/', (req, res) => {
  */
 app.get('/token', async (req, res) => {
   try {
-    // exposed via listObjects call (forces token fetch)
-    const objects = await fgaClient.listObjects("mr-b", "can_view", "subscription");
+    // exposed via listUserObjects call (forces token fetch)
+    const objects = await authProvider.listUserObjects("mr-b", "can_view", "subscription");
 
     res.json({
       message: "Token acquired successfully ✅",
@@ -82,7 +83,7 @@ app.get('/token', async (req, res) => {
  */
 app.get('/test-fga/:userId', async (req, res) => {
   try {
-    const objects = await fgaClient.getUserSubscriptions(req.params.userId);
+    const objects = await authProvider.listUserObjects(req.params.userId, 'can_view', 'subscription');
     res.json({ objects });
 
   } catch (err) {

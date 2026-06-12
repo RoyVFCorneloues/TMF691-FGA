@@ -1,35 +1,48 @@
-const fgaClient = require('../fga/fgaClient');
 const subscriptionRepository = require('../repositories/subscriptionRepository');
 
 /**
  * ============================================================================
- * BUILD USER ASSETS
+ * CREATE USER ASSETS SERVICE
  * ----------------------------------------------------------------------------
- * Orchestrates:
- *   1. Calls FGA to get authorised subscriptions
- *   2. Enriches using repository
- *   3. Returns userAssets[]
+ * Factory that binds an AuthorizationProvider to the service.
+ * Returns an object with the buildUserAssets method.
+ *
+ * @param {AuthorizationProvider} authProvider
  * ============================================================================
  */
-async function buildUserAssets(userId) {
-  const objects = await fgaClient.getUserSubscriptions(userId);
+function createUserAssetsService(authProvider) {
+  /**
+   * ============================================================================
+   * BUILD USER ASSETS
+   * ----------------------------------------------------------------------------
+   * Orchestrates:
+   *   1. Calls the authorization provider to get authorised subscriptions
+   *   2. Enriches using repository
+   *   3. Returns userAssets[]
+   * ============================================================================
+   */
+  async function buildUserAssets(userId) {
+    const objects = await authProvider.listUserObjects(userId, 'can_view', 'subscription');
 
-  return objects
-    .map(obj => {
-      const [type, id] = obj.split(":");
+    return objects
+      .map(obj => {
+        const [type, id] = obj.split(":");
 
-      const sub = subscriptionRepository.findById(id);
-      if (!sub) return null;
+        const sub = subscriptionRepository.findById(id);
+        if (!sub) return null;
 
-      return {
-        id: sub.id,
-        entityType: type,
-        accountId: sub.accountId,
-        product: sub.product,
-        entitlements: ["can_view"]
-      };
-    })
-    .filter(Boolean);
+        return {
+          id: sub.id,
+          entityType: type,
+          accountId: sub.accountId,
+          product: sub.product,
+          entitlements: ["can_view"]
+        };
+      })
+      .filter(Boolean);
+  }
+
+  return { buildUserAssets };
 }
 
-module.exports = { buildUserAssets };
+module.exports = { createUserAssetsService };

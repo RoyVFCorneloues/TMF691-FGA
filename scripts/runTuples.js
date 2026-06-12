@@ -1,5 +1,6 @@
 const path = require('path');
-const fgaClient = require('../src/fga/fgaClient');
+const authProvider = require('../src/authorization');
+const { processTuplePlanFromFile } = require('../src/authorization/tuplePlanService');
 
 require('dotenv').config();
 
@@ -13,7 +14,7 @@ async function run() {
   console.log(`Mode: ${dryRun ? 'DRY RUN' : 'APPLY'}\n`);
 
   try {
-    const result = await fgaClient.processTuplePlanFromFile(filePath, {
+    const result = await processTuplePlanFromFile(authProvider, filePath, {
       dryRun
     });
 
