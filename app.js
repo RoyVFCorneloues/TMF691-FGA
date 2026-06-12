@@ -25,16 +25,15 @@ const port = 3000;
  * =============================================================================
  */
 
-// Repositories (data access)
-const subscriptionRepository = require('./src/repositories/subscriptionRepository');
-const customerRepository = require('./src/repositories/customerRepository');
-
 // Authorization provider (PDP) – selected via AUTH_PROVIDER env var (default: auth0)
 const authProvider = require('./src/authorization');
 
-// Service layer (PEP orchestration) – wired with the authorization provider
+// Data-source provider (PIP) – selected via DATA_PROVIDER env var (default: json)
+const dataProvider = require('./src/data');
+
+// Service layer (PEP orchestration) – wired with auth + data providers
 const { createUserAssetsService } = require('./src/services/userAssetsService');
-const userAssetsService = createUserAssetsService(authProvider);
+const userAssetsService = createUserAssetsService(authProvider, dataProvider);
 
 /**
  * =============================================================================
@@ -42,8 +41,7 @@ const userAssetsService = createUserAssetsService(authProvider);
  * =============================================================================
  */
 
-subscriptionRepository.init();
-customerRepository.init();
+dataProvider.init();
 
 /**
  * =============================================================================
@@ -95,11 +93,11 @@ app.get('/test-fga/:userId', async (req, res) => {
 
 /**
  * =============================================================================
- * SUBSCRIPTION LOOKUP (via repository)
+ * SUBSCRIPTION LOOKUP (via data provider)
  * =============================================================================
  */
 app.get('/subscription/:id', (req, res) => {
-  const sub = subscriptionRepository.findById(req.params.id);
+  const sub = dataProvider.findSubscriptionById(req.params.id);
 
   if (!sub) {
     return res.status(404).json({ error: "Not found" });
@@ -110,11 +108,11 @@ app.get('/subscription/:id', (req, res) => {
 
 /**
  * =============================================================================
- * CUSTOMER LOOKUP (via repository)
+ * CUSTOMER LOOKUP (via data provider)
  * =============================================================================
  */
 app.get('/customer/:id', (req, res) => {
-  const customer = customerRepository.findById(req.params.id);
+  const customer = dataProvider.findCustomerById(req.params.id);
 
   if (!customer) {
     return res.status(404).json({ error: "Customer not found" });
@@ -181,7 +179,7 @@ app.get('/userAssets-demo/:userId', async (req, res) => {
  * =============================================================================
  */
 app.get('/reload-subscriptions', (req, res) => {
-  const count = subscriptionRepository.reloadSubscriptions();
+  const count = dataProvider.reloadSubscriptions();
 
   res.json({
     message: "Subscriptions reloaded ✅",
@@ -190,7 +188,7 @@ app.get('/reload-subscriptions', (req, res) => {
 });
 
 app.get('/reload-customers', (req, res) => {
-  const count = customerRepository.reloadCustomers();
+  const count = dataProvider.reloadCustomers();
 
   res.json({
     message: "Customers reloaded ✅",
