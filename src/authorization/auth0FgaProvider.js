@@ -8,11 +8,13 @@
  *   - Obtain and cache OAuth access tokens
  *   - Query FGA (listUserObjects / readTuple)
  *   - Apply tuple mutations (writeTupleBatch)
+ *   - Manage assertions for Developer Mode (writeAssertions / readAssertions / clearAssertions)
  *
  * NOTES:
  *   - FGA exposes tuple mutation via the /write endpoint
  *   - Tuple changes are modelled as explicit write + delete operations
  *   - There is no direct tuple "update" operation in this implementation
+ *   - Assertions are scoped to an authorization model and used in Developer Mode only
  *
  * =============================================================================
  */
@@ -250,6 +252,89 @@ class Auth0FgaProvider extends AuthorizationProvider {
       console.error('❌ FGA WriteTupleBatch error:', err.response?.data || err.message);
       throw err;
     }
+  }
+
+  /**
+   * ============================================================================
+   * WRITE ASSERTIONS
+   * ----------------------------------------------------------------------------
+   * Replaces the current set of assertions for the active authorization model.
+   * Uses the FGA PUT /assertions endpoint.
+   *
+   * @param {Object[]} assertions  - Array of assertion objects, each containing:
+   *   { tuple_key: { user, relation, object }, expectation: boolean }
+   *
+   * Returns:
+   *   Promise<void>
+   * ============================================================================
+   */
+  async writeAssertions(assertions = []) {
+    try {
+      const token = await this._getToken();
+
+      await axios.put(
+        `${process.env.FGA_API_URL}/stores/${process.env.FGA_STORE_ID}/assertions/${process.env.FGA_MODEL_ID}`,
+        { assertions },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+    } catch (err) {
+      console.error('❌ FGA WriteAssertions error:', err.response?.data || err.message);
+      throw err;
+    }
+  }
+
+  /**
+   * ============================================================================
+   * READ ASSERTIONS
+   * ----------------------------------------------------------------------------
+   * Retrieves all current assertions for the active authorization model.
+   * Uses the FGA GET /assertions endpoint.
+   *
+   * Returns:
+   *   Promise<Object[]>  Array of assertion objects
+   * ============================================================================
+   */
+  async readAssertions() {
+    try {
+      const token = await this._getToken();
+
+      const response = await axios.get(
+        `${process.env.FGA_API_URL}/stores/${process.env.FGA_STORE_ID}/assertions/${process.env.FGA_MODEL_ID}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return response.data.assertions || [];
+
+    } catch (err) {
+      console.error('❌ FGA ReadAssertions error:', err.response?.data || err.message);
+      throw err;
+    }
+  }
+
+  /**
+   * ============================================================================
+   * CLEAR ASSERTIONS
+   * ----------------------------------------------------------------------------
+   * Removes all assertions for the active authorization model by writing an
+   * empty assertions array.
+   *
+   * Returns:
+   *   Promise<void>
+   * ============================================================================
+   */
+  async clearAssertions() {
+    return this.writeAssertions([]);
   }
 }
 

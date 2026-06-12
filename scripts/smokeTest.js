@@ -39,7 +39,7 @@ const AuthorizationProvider = require('../src/authorization/authorizationProvide
 assert(typeof AuthorizationProvider === 'function', 'AuthorizationProvider is a class');
 
 const base = new AuthorizationProvider();
-['listUserObjects', 'readTuple', 'writeTupleBatch'].forEach(method => {
+['listUserObjects', 'readTuple', 'writeTupleBatch', 'writeAssertions', 'readAssertions', 'clearAssertions'].forEach(method => {
   assert(typeof base[method] === 'function', `base.${method}() exists`);
   base[method]().catch(err => {
     assert(
@@ -65,6 +65,9 @@ assert(typeof provider.readTuple === 'function', 'provider.readTuple() exists');
 assert(typeof provider.writeTupleBatch === 'function', 'provider.writeTupleBatch() exists');
 assert(typeof provider.getUserSubscriptions === 'function', 'provider.getUserSubscriptions() exists');
 assert(typeof provider.tupleExists === 'function', 'provider.tupleExists() exists');
+assert(typeof provider.writeAssertions === 'function', 'provider.writeAssertions() exists');
+assert(typeof provider.readAssertions === 'function', 'provider.readAssertions() exists');
+assert(typeof provider.clearAssertions === 'function', 'provider.clearAssertions() exists');
 
 // ---------------------------------------------------------------------------
 // 3. Factory (index.js)
@@ -117,6 +120,17 @@ assert(normalisedPartial.write.length === 1, 'normaliseTuplePlan preserves write
 assert(normalisedPartial.delete.length === 0, 'normaliseTuplePlan defaults delete to []');
 
 // ---------------------------------------------------------------------------
+// 4b. assertionService
+// ---------------------------------------------------------------------------
+console.log('\n── 4b. assertionService ──');
+
+const assertionService = require('../src/authorization/assertionService');
+
+assert(typeof assertionService.loadAssertionsFromFile === 'function', 'loadAssertionsFromFile() exists');
+assert(typeof assertionService.processAssertions === 'function', 'processAssertions() exists');
+assert(typeof assertionService.processAssertionsFromFile === 'function', 'processAssertionsFromFile() exists');
+
+// ---------------------------------------------------------------------------
 // 5. userAssetsService factory
 // ---------------------------------------------------------------------------
 console.log('\n── 5. userAssetsService ──');
@@ -147,9 +161,41 @@ assert(typeof svc.buildUserAssets === 'function', 'service.buildUserAssets() exi
   const fgaClient = require('../src/fga/fgaClient');
   ['listObjects', 'getUserSubscriptions', 'readTuple', 'tupleExists',
     'writeTupleBatch', 'loadTuplePlanFromFile', 'normaliseTuplePlan',
-    'processTuplePlan', 'processTuplePlanFromFile'].forEach(fn => {
+    'processTuplePlan', 'processTuplePlanFromFile',
+    'writeAssertions', 'readAssertions', 'clearAssertions',
+    'loadAssertionsFromFile', 'processAssertions', 'processAssertionsFromFile'].forEach(fn => {
     assert(typeof fgaClient[fn] === 'function', `fgaClient.${fn}() exists (shim)`);
   });
+
+  // ---------------------------------------------------------------------------
+  // 6b. assertionService.processAssertions with mock provider
+  // ---------------------------------------------------------------------------
+  console.log('\n── 6b. assertionService.processAssertions ──');
+
+  const assertionSvc = require('../src/authorization/assertionService');
+  let clearCalled = false;
+  let writtenAssertions = null;
+  const mockAssertionProvider = {
+    clearAssertions: async () => { clearCalled = true; },
+    writeAssertions: async (a) => { writtenAssertions = a; }
+  };
+
+  const emptyResult = await assertionSvc.processAssertions(mockAssertionProvider, []);
+  assert(emptyResult.cleared === true, 'processAssertions clears existing assertions');
+  assert(emptyResult.written === 0, 'processAssertions reports 0 written for empty array');
+  assert(clearCalled, 'clearAssertions() was called');
+  assert(writtenAssertions === null, 'writeAssertions() not called when assertions array is empty');
+
+  clearCalled = false;
+  writtenAssertions = null;
+  const sampleAssertions = [
+    { tuple_key: { user: 'user:anne', relation: 'reader', object: 'document:roadmap' }, expectation: true }
+  ];
+  const writtenResult = await assertionSvc.processAssertions(mockAssertionProvider, sampleAssertions);
+  assert(writtenResult.cleared === true, 'processAssertions clears before writing');
+  assert(writtenResult.written === 1, 'processAssertions reports correct written count');
+  assert(clearCalled, 'clearAssertions() was called before writing');
+  assert(Array.isArray(writtenAssertions) && writtenAssertions.length === 1, 'writeAssertions() called with correct assertions');
 
   // ---------------------------------------------------------------------------
   // 7. DataSourceProvider base class

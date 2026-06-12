@@ -10,6 +10,9 @@
  *   listUserObjects(userId, relation, type)  – objects a user can access
  *   readTuple(tuple)                         – read matching tuples
  *   writeTupleBatch({ writes, deletes })     – apply tuple writes/deletes
+ *   writeAssertions(assertions)              – write assertions (developer mode)
+ *   readAssertions()                         – read current assertions
+ *   clearAssertions()                        – remove all assertions
  *
  * =============================================================================
  */
@@ -70,6 +73,54 @@ class AuthorizationProvider {
   // eslint-disable-next-line no-unused-vars
   async writeTupleBatch({ writes, deletes } = {}) {
     throw new Error('writeTupleBatch() must be implemented by the provider');
+  }
+
+  /**
+   * ============================================================================
+   * WRITE ASSERTIONS
+   * ----------------------------------------------------------------------------
+   * Replaces the current set of assertions for the active authorization model.
+   * Used in Developer Mode to validate that access outcomes are correct.
+   *
+   * @param {Object[]} assertions  - Array of assertion objects, each containing:
+   *   { tuple_key: { user, relation, object }, expectation: boolean }
+   *
+   * Returns:
+   *   Promise<void>
+   * ============================================================================
+   */
+  // eslint-disable-next-line no-unused-vars
+  async writeAssertions(assertions) {
+    throw new Error('writeAssertions() must be implemented by the provider');
+  }
+
+  /**
+   * ============================================================================
+   * READ ASSERTIONS
+   * ----------------------------------------------------------------------------
+   * Retrieves all current assertions for the active authorization model.
+   *
+   * Returns:
+   *   Promise<Object[]>  Array of assertion objects
+   * ============================================================================
+   */
+  async readAssertions() {
+    throw new Error('readAssertions() must be implemented by the provider');
+  }
+
+  /**
+   * ============================================================================
+   * CLEAR ASSERTIONS
+   * ----------------------------------------------------------------------------
+   * Removes all assertions for the active authorization model by writing an
+   * empty assertions array.
+   *
+   * Returns:
+   *   Promise<void>
+   * ============================================================================
+   */
+  async clearAssertions() {
+    throw new Error('clearAssertions() must be implemented by the provider');
   }
 }
 
