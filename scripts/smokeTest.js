@@ -125,10 +125,13 @@ const { createUserAssetsService } = require('../src/services/userAssetsService')
 
 assert(typeof createUserAssetsService === 'function', 'createUserAssetsService() is exported');
 
-const mockProvider = {
+const mockAuthProvider = {
   listUserObjects: async () => []
 };
-const svc = createUserAssetsService(mockProvider);
+const mockDataProvider = {
+  findSubscriptionById: () => undefined
+};
+const svc = createUserAssetsService(mockAuthProvider, mockDataProvider);
 assert(typeof svc.buildUserAssets === 'function', 'service.buildUserAssets() exists after DI');
 
 (async () => {
@@ -147,6 +150,95 @@ assert(typeof svc.buildUserAssets === 'function', 'service.buildUserAssets() exi
     'processTuplePlan', 'processTuplePlanFromFile'].forEach(fn => {
     assert(typeof fgaClient[fn] === 'function', `fgaClient.${fn}() exists (shim)`);
   });
+
+  // ---------------------------------------------------------------------------
+  // 7. DataSourceProvider base class
+  // ---------------------------------------------------------------------------
+  console.log('\n── 7. DataSourceProvider interface ──');
+
+  const DataSourceProvider = require('../src/data/dataSourceProvider');
+
+  assert(typeof DataSourceProvider === 'function', 'DataSourceProvider is a class');
+
+  const baseDs = new DataSourceProvider();
+  [
+    'init', 'findSubscriptionById', 'findSubscriptionsByAccountId',
+    'getAllSubscriptions', 'reloadSubscriptions',
+    'findCustomerById', 'getAllCustomers', 'reloadCustomers',
+    'getTmfAccounts', 'getTmfSubscriptions', 'getTmfRoles'
+  ].forEach(method => {
+    assert(typeof baseDs[method] === 'function', `DataSourceProvider.${method}() exists`);
+    let threw = false;
+    try { baseDs[method](); } catch (e) { threw = e.message.includes('must be implemented'); }
+    assert(threw, `DataSourceProvider.${method}() throws "must be implemented"`);
+  });
+
+  // ---------------------------------------------------------------------------
+  // 8. JsonFileProvider
+  // ---------------------------------------------------------------------------
+  console.log('\n── 8. JsonFileProvider ──');
+
+  const JsonFileProvider = require('../src/data/jsonFileProvider');
+
+  assert(typeof JsonFileProvider === 'function', 'JsonFileProvider is a class');
+
+  const jsonProvider = new JsonFileProvider();
+  assert(jsonProvider instanceof DataSourceProvider, 'JsonFileProvider extends DataSourceProvider');
+  [
+    'init', 'findSubscriptionById', 'findSubscriptionsByAccountId',
+    'getAllSubscriptions', 'reloadSubscriptions',
+    'findCustomerById', 'getAllCustomers', 'reloadCustomers',
+    'getTmfAccounts', 'getTmfSubscriptions', 'getTmfRoles'
+  ].forEach(method => {
+    assert(typeof jsonProvider[method] === 'function', `JsonFileProvider.${method}() exists`);
+  });
+
+  // ---------------------------------------------------------------------------
+  // 9. Data source factory (index.js)
+  // ---------------------------------------------------------------------------
+  console.log('\n── 9. Data source factory ──');
+
+  const { createDataProvider } = require('../src/data');
+
+  assert(typeof createDataProvider === 'function', 'createDataProvider() is exported');
+
+  const jsonInstance = createDataProvider('json');
+  assert(jsonInstance instanceof JsonFileProvider, 'createDataProvider("json") returns JsonFileProvider');
+
+  let dsFactoryError = null;
+  try {
+    createDataProvider('unknown_provider');
+  } catch (err) {
+    dsFactoryError = err;
+  }
+  assert(dsFactoryError !== null, 'createDataProvider("unknown_provider") throws');
+  assert(
+    dsFactoryError && dsFactoryError.message.includes('Unknown DATA_PROVIDER'),
+    'error message mentions DATA_PROVIDER'
+  );
+
+  const defaultDsInstance = require('../src/data');
+  assert(
+    defaultDsInstance instanceof JsonFileProvider,
+    'default data export is a JsonFileProvider instance'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 10. userAssetsService with data provider DI
+  // ---------------------------------------------------------------------------
+  console.log('\n── 10. userAssetsService with data provider DI ──');
+
+  const mockAuthProv = { listUserObjects: async () => ['subscription:S1'] };
+  const mockDataProv = {
+    findSubscriptionById: (id) => id === 'S1'
+      ? { id: 'S1', accountId: 'A1', product: 'Test Plan' }
+      : undefined
+  };
+  const svcWithData = createUserAssetsService(mockAuthProv, mockDataProv);
+  const enrichedAssets = await svcWithData.buildUserAssets('test-user');
+  assert(enrichedAssets.length === 1, 'buildUserAssets() returns enriched asset when subscription found');
+  assert(enrichedAssets[0].id === 'S1', 'enriched asset has correct id');
+  assert(enrichedAssets[0].product === 'Test Plan', 'enriched asset has correct product');
 
   // ---------------------------------------------------------------------------
   // Summary

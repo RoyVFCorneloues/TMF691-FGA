@@ -38,7 +38,7 @@ userAssets[] response
 |-----------|-----------------|
 | **FGA** | Determines which resources user can access |
 | **PEP** | Orchestrates calls, enriches data, shapes response |
-| **Repositories** | Abstract data access (subscriptions, customers, TMF data) |
+| **Data Provider (PIP)** | Pluggable data-source abstraction (subscriptions, customers, TMF data) |
 | **Services** | Business logic (user assets, tuple building) |
 
 ---
@@ -50,19 +50,26 @@ userAssets[] response
 ├── app.js                              # Main Express application & endpoints
 ├── package.json                        # Dependencies
 ├── src/
+│   ├── authorization/
+│   │   ├── authorizationProvider.js   # Authorization provider interface (PDP)
+│   │   ├── auth0FgaProvider.js        # Auth0 FGA implementation
+│   │   └── index.js                   # Auth provider factory (AUTH_PROVIDER)
+│   ├── data/
+│   │   ├── dataSourceProvider.js      # Data-source provider interface (PIP)
+│   │   ├── jsonFileProvider.js        # JSON-file-backed implementation
+│   │   ├── index.js                   # Data provider factory (DATA_PROVIDER)
+│   │   ├── subscriptions.json         # Mock subscription records
+│   │   ├── customers.json             # Mock customer/party records
+│   │   └── tmfData.json               # TMF domain model (accounts, roles, subscriptions)
 │   ├── fga/
-│   │   └── fgaClient.js               # FGA API communication (Auth0 SDK wrapper)
+│   │   └── fgaClient.js               # Backward-compat shim (delegates to authorization/)
 │   ├── services/
 │   │   ├── userAssetsService.js       # Orchestrate user assets retrieval
 │   │   └── tupleTMFBuilderService.js  # Generate FGA tuples from TMF data
-│   ├── repositories/
-│   │   ├── subscriptionRepository.js  # Subscription data access
-│   │   ├── customerRepository.js      # Customer/party data access
-│   │   └── tmfRepository.js           # TMF domain model data access
-│   └── data/
-│       ├── subscriptions.json         # Mock subscription records
-│       ├── customers.json             # Mock customer/party records
-│       └── tmfData.json               # TMF domain model (accounts, roles, subscriptions)
+│   └── repositories/
+│       ├── subscriptionRepository.js  # Subscription JSON file repository
+│       ├── customerRepository.js      # Customer/party JSON file repository
+│       └── tmfRepository.js           # TMF domain model JSON file repository
 ├── .gitignore                          # Ignore node_modules and .env
 └── README.md                           # This file
 ```
@@ -423,7 +430,117 @@ The `fgaClient` module provides:
 
 ---
 
+## Data Source Provider (PIP)
+
+The data-source layer is **pluggable**, mirroring the authorization provider approach.  All data access goes through a `DataSourceProvider` interface so the backing store can be swapped without touching services or endpoints.
+
+### Configuration
+
+Set the `DATA_PROVIDER` environment variable (default: `json`):
+
+```bash
+DATA_PROVIDER=json       # JSON file-backed provider (default, PoC)
+DATA_PROVIDER=tmf_api    # Future: real TMF Product/Party APIs
+```
+
+### Provider Interface (`src/data/dataSourceProvider.js`)
+
+Every provider must implement the following methods:
+
+| Method | Description |
+|--------|-------------|
+| `init()` | Initialise all data sources (called once at startup) |
+| `findSubscriptionById(id)` | Subscription lookup by ID |
+| `findSubscriptionsByAccountId(accountId)` | All subscriptions for an account |
+| `getAllSubscriptions()` | Full subscription dataset |
+| `reloadSubscriptions()` | Reload subscriptions; returns record count |
+| `findCustomerById(id)` | Customer/party lookup by ID |
+| `getAllCustomers()` | Full customer dataset |
+| `reloadCustomers()` | Reload customers; returns record count |
+| `getTmfAccounts()` | TMF account records |
+| `getTmfSubscriptions()` | TMF subscription records |
+| `getTmfRoles()` | TMF party-role records |
+
+### Built-in Providers
+
+#### `json` (default) – `src/data/jsonFileProvider.js`
+
+Reads data from local JSON files in `src/data/`.  Used for PoC and local development.
+
+```bash
+DATA_PROVIDER=json  # or leave unset
+```
+
+### Adding a New Provider
+
+1. Create `src/data/myProvider.js` that extends `DataSourceProvider`:
+
+```javascript
+const DataSourceProvider = require('./dataSourceProvider');
+
+class MyProvider extends DataSourceProvider {
+  init() { /* connect to your API */ }
+  findSubscriptionById(id) { /* call TMF API */ }
+  // ... implement all required methods
+}
+
+module.exports = MyProvider;
+```
+
+2. Register it in the factory (`src/data/index.js`):
+
+```javascript
+const MyProvider = require('./myProvider');
+
+switch (name) {
+  case 'json':   return new JsonFileProvider();
+  case 'my_api': return new MyProvider();
+  // ...
+}
+```
+
+3. Set the environment variable:
+
+```bash
+DATA_PROVIDER=my_api
+```
+
+### Using the Provider
+
+```javascript
+const dataProvider = require('./src/data');
+
+// Initialise at startup
+dataProvider.init();
+
+// Use in routes / services
+const sub      = dataProvider.findSubscriptionById('S1');
+const customer = dataProvider.findCustomerById('mr-b');
+const accounts = dataProvider.getTmfAccounts();
+```
+
+### Dependency Injection in Services
+
+Services receive the provider via their factory function, making them testable with any mock:
+
+```javascript
+const { createUserAssetsService } = require('./src/services/userAssetsService');
+
+// Production wiring
+const authProvider = require('./src/authorization');
+const dataProvider = require('./src/data');
+const service = createUserAssetsService(authProvider, dataProvider);
+
+// Test wiring (mock providers)
+const mockDataProvider = { findSubscriptionById: (id) => ({ id, product: 'Test' }) };
+const testService = createUserAssetsService(mockAuthProvider, mockDataProvider);
+```
+
+---
+
 ## Data Repositories
+
+The underlying repositories (`src/repositories/`) are used internally by `JsonFileProvider`.  Direct usage is discouraged in favour of going through the data provider.
 
 ### Subscription Repository
 ```javascript
