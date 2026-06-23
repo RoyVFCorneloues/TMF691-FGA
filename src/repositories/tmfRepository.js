@@ -3,11 +3,18 @@ const path = require('path');
 
 let data = {};
 
-function load() {
-  const filePath = path.join(__dirname, '../data/tmfData.json');
-  data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-  console.log('✅ TMF data loaded');
+function load(sourceFile = null) {
+  // Allow override via parameter, environment variable, or default
+  const source = sourceFile || process.env.TMF_DATA_SOURCE || 'tmfData.json';
+  const filePath = path.join(__dirname, '../data', source);
+  
+  try {
+    data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    console.log(`✅ TMF data loaded from: ${source}`);
+  } catch (error) {
+    console.error(`❌ Error loading TMF data from ${source}:`, error.message);
+    throw error;
+  }
 }
 
 function getAccounts() {
