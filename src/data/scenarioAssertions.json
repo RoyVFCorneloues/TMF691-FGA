@@ -1,0 +1,682 @@
+{
+  "assertions": [
+    {
+      "tuple_key": {
+        "user": "user:s01_alex_hart",
+        "relation": "can_view",
+        "object": "subscription:s01_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s01_alex_hart",
+        "relation": "can_view",
+        "object": "subscription:s01_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s01_jordan_vale",
+        "relation": "can_view",
+        "object": "subscription:s01_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s01_jordan_vale",
+        "relation": "can_view",
+        "object": "subscription:s01_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s01_alex_hart",
+        "relation": "can_view",
+        "object": "subscription:s01_S999"
+      },
+      "expectation": false
+    },
+
+    {
+      "tuple_key": {
+        "user": "user:s02_daniel_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_daniel_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_daniel_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_daniel_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_leo_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_leo_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_leo_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S3"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_leo_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S4"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_priya_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_priya_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_priya_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_priya_mercer",
+        "relation": "can_view",
+        "object": "subscription:s02_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s02_casey_holt",
+        "relation": "can_view",
+        "object": "subscription:s02_S999"
+      },
+      "expectation": false
+    },
+
+    {
+      "tuple_key": {
+        "user": "user:s03_marcus_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_marcus_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_marcus_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_marcus_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_marcus_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S5"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_marcus_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S5"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_noah_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_noah_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S3"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_noah_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S4"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_amara_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_amara_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_amara_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S4"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_nathan_ellis",
+        "relation": "can_view",
+        "object": "subscription:s03_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_nathan_ellis",
+        "relation": "can_view",
+        "object": "subscription:s03_S5"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_nathan_ellis",
+        "relation": "can_view",
+        "object": "subscription:s03_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_nathan_ellis",
+        "relation": "can_view",
+        "object": "subscription:s03_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s03_marcus_shaw",
+        "relation": "can_view",
+        "object": "subscription:s03_S999"
+      },
+      "expectation": false
+    },
+
+    {
+      "tuple_key": {
+        "user": "user:s04_oliver_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_oliver_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_oliver_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S3"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_ethan_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_ethan_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_ethan_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S3"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_maya_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_maya_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_maya_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s04_oliver_bennett",
+        "relation": "can_view",
+        "object": "subscription:s04_S999"
+      },
+      "expectation": false
+    },
+
+    {
+      "tuple_key": {
+        "user": "user:s05_james_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_james_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_james_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_james_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_hannah_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_hannah_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_hannah_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_hannah_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_ben_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_ben_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_ben_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_ben_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_sam_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_sam_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_sam_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S3"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_sam_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S4"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s05_sam_carter",
+        "relation": "can_view",
+        "object": "subscription:s05_S999"
+      },
+      "expectation": false
+    },
+
+    {
+      "tuple_key": {
+        "user": "user:s06_thomas_foster",
+        "relation": "can_view",
+        "object": "subscription:s06_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s06_thomas_foster",
+        "relation": "can_view",
+        "object": "subscription:s06_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s06_thomas_foster",
+        "relation": "can_view",
+        "object": "subscription:s06_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s06_thomas_foster",
+        "relation": "can_view",
+        "object": "subscription:s06_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s06_thomas_foster",
+        "relation": "can_view",
+        "object": "subscription:s06_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s06_thomas_foster",
+        "relation": "can_view",
+        "object": "subscription:s06_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s06_thomas_foster",
+        "relation": "can_view",
+        "object": "subscription:s06_S999"
+      },
+      "expectation": false
+    },
+
+    {
+      "tuple_key": {
+        "user": "user:s07_george_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S1"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_george_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_george_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_george_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_isla_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S3"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_isla_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S4"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_isla_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_isla_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S2"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_dylan_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S2"
+      },
+      "expectation": true
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_dylan_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S1"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_dylan_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S3"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_dylan_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S4"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_isla_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S999"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_dylan_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S999"
+      },
+      "expectation": false
+    },
+    {
+      "tuple_key": {
+        "user": "user:s07_george_wallace",
+        "relation": "can_view",
+        "object": "subscription:s07_S999"
+      },
+      "expectation": false
+    }
+  ]
+}
