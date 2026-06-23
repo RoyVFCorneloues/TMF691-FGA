@@ -1,0 +1,145 @@
+{
+  "party": [
+    { "id": "s01_alex_hart", "name": "Alex Hart", "scenario": "scenario-1" },
+    { "id": "s01_jordan_vale", "name": "Jordan Vale", "scenario": "scenario-1" },
+
+    { "id": "s02_daniel_mercer", "name": "Daniel Mercer", "scenario": "scenario-2" },
+    { "id": "s02_priya_mercer", "name": "Priya Mercer", "scenario": "scenario-2" },
+    { "id": "s02_leo_mercer", "name": "Leo Mercer", "scenario": "scenario-2" },
+    { "id": "s02_casey_holt", "name": "Casey Holt", "scenario": "scenario-2" },
+
+    { "id": "s03_nathan_ellis", "name": "Nathan Ellis", "scenario": "scenario-3" },
+    { "id": "s03_marcus_shaw", "name": "Marcus Shaw", "scenario": "scenario-3" },
+    { "id": "s03_amara_shaw", "name": "Amara Shaw", "scenario": "scenario-3" },
+    { "id": "s03_noah_shaw", "name": "Noah Shaw", "scenario": "scenario-3" },
+    { "id": "s03_riley_moss", "name": "Riley Moss", "scenario": "scenario-3" },
+
+    { "id": "s04_oliver_bennett", "name": "Oliver Bennett", "scenario": "scenario-4" },
+    { "id": "s04_maya_bennett", "name": "Maya Bennett", "scenario": "scenario-4" },
+    { "id": "s04_ethan_bennett", "name": "Ethan Bennett", "scenario": "scenario-4" },
+    { "id": "s04_taylor_brooks", "name": "Taylor Brooks", "scenario": "scenario-4" },
+
+    { "id": "s05_james_carter", "name": "James Carter", "scenario": "scenario-5" },
+    { "id": "s05_hannah_carter", "name": "Hannah Carter", "scenario": "scenario-5" },
+    { "id": "s05_ben_carter", "name": "Ben Carter", "scenario": "scenario-5" },
+    { "id": "s05_sam_carter", "name": "Sam Carter", "scenario": "scenario-5" },
+    { "id": "s05_morgan_lane", "name": "Morgan Lane", "scenario": "scenario-5" },
+    { "id": "s05_finley_stone", "name": "Finley Stone", "scenario": "scenario-5" },
+
+    { "id": "s06_thomas_foster", "name": "Thomas Foster", "scenario": "scenario-6" },
+    { "id": "s06_rowan_blake", "name": "Rowan Blake", "scenario": "scenario-6" },
+
+    { "id": "s07_george_wallace", "name": "George Wallace", "scenario": "scenario-7" },
+    { "id": "s07_isla_wallace", "name": "Isla Wallace", "scenario": "scenario-7" },
+    { "id": "s07_dylan_wallace", "name": "Dylan Wallace", "scenario": "scenario-7" },
+    { "id": "s07_avery_quinn", "name": "Avery Quinn", "scenario": "scenario-7" }
+  ],
+
+  "account": [
+    { "id": "s01_A1", "name": "Hart Parent Account", "scenario": "scenario-1" },
+
+    { "id": "s02_A1", "name": "Mercer Parent Account", "scenario": "scenario-2" },
+    { "id": "s02_A2", "name": "Mercer Child Account 1", "scenario": "scenario-2" },
+    { "id": "s02_A3", "name": "Mercer Child Account 2", "scenario": "scenario-2" },
+    { "id": "s02_A4", "name": "Mercer Child Account 3", "scenario": "scenario-2" },
+
+    { "id": "s03_A1", "name": "Ellis Parent Account 1", "scenario": "scenario-3" },
+    { "id": "s03_A2", "name": "Shaw Parent Account 2", "scenario": "scenario-3" },
+    { "id": "s03_A3", "name": "Ellis Child Account 1A", "scenario": "scenario-3" },
+    { "id": "s03_A4", "name": "Shaw Child Account 2A", "scenario": "scenario-3" },
+    { "id": "s03_A5", "name": "Shaw Child Account 2B", "scenario": "scenario-3" },
+
+    { "id": "s04_A1", "name": "Bennett Parent Account", "scenario": "scenario-4" },
+    { "id": "s04_A2", "name": "Bennett Child Account 1", "scenario": "scenario-4" },
+    { "id": "s04_A3", "name": "Bennett Child Account 2", "scenario": "scenario-4" },
+    { "id": "s04_A4", "name": "Bennett Child Account 3", "scenario": "scenario-4" },
+
+    { "id": "s05_A1", "name": "Carter Parent Account", "scenario": "scenario-5" },
+
+    { "id": "s06_A1", "name": "Foster Parent Account", "scenario": "scenario-6" },
+
+    { "id": "s07_A1", "name": "Wallace Parent Account", "scenario": "scenario-7" },
+    { "id": "s07_A2", "name": "Wallace Child Account 1", "scenario": "scenario-7" },
+    { "id": "s07_A3", "name": "Wallace Child Account 2", "scenario": "scenario-7" },
+    { "id": "s07_A4", "name": "Wallace Child Account 3", "scenario": "scenario-7" }
+  ],
+
+  "partyRole": [
+    { "partyId": "s01_alex_hart", "accountId": "s01_A1", "role": "owner" },
+    { "partyId": "s01_alex_hart", "accountId": "s01_A1", "role": "account_contact" },
+
+    { "partyId": "s02_daniel_mercer", "accountId": "s02_A1", "role": "owner" },
+    { "partyId": "s02_daniel_mercer", "accountId": "s02_A1", "role": "account_contact" },
+    { "partyId": "s02_leo_mercer", "accountId": "s02_A2", "role": "owner" },
+    { "partyId": "s02_leo_mercer", "accountId": "s02_A2", "role": "account_contact" },
+    { "partyId": "s02_priya_mercer", "accountId": "s02_A3", "role": "owner" },
+    { "partyId": "s02_priya_mercer", "accountId": "s02_A3", "role": "account_contact" },
+    { "partyId": "s02_priya_mercer", "accountId": "s02_A4", "role": "owner" },
+    { "partyId": "s02_priya_mercer", "accountId": "s02_A4", "role": "account_contact" },
+
+    { "partyId": "s03_nathan_ellis", "accountId": "s03_A1", "role": "owner" },
+    { "partyId": "s03_nathan_ellis", "accountId": "s03_A1", "role": "account_contact" },
+    { "partyId": "s03_marcus_shaw", "accountId": "s03_A2", "role": "owner" },
+    { "partyId": "s03_marcus_shaw", "accountId": "s03_A2", "role": "account_contact" },
+    { "partyId": "s03_marcus_shaw", "accountId": "s03_A3", "role": "owner" },
+    { "partyId": "s03_marcus_shaw", "accountId": "s03_A3", "role": "account_contact" },
+    { "partyId": "s03_noah_shaw", "accountId": "s03_A4", "role": "owner" },
+    { "partyId": "s03_noah_shaw", "accountId": "s03_A4", "role": "account_contact" },
+    { "partyId": "s03_amara_shaw", "accountId": "s03_A5", "role": "owner" },
+    { "partyId": "s03_amara_shaw", "accountId": "s03_A5", "role": "account_contact" },
+
+    { "partyId": "s04_oliver_bennett", "accountId": "s04_A1", "role": "owner" },
+    { "partyId": "s04_oliver_bennett", "accountId": "s04_A1", "role": "account_contact" },
+    { "partyId": "s04_maya_bennett", "accountId": "s04_A2", "role": "owner" },
+    { "partyId": "s04_maya_bennett", "accountId": "s04_A2", "role": "account_contact" },
+    { "partyId": "s04_ethan_bennett", "accountId": "s04_A3", "role": "owner" },
+    { "partyId": "s04_ethan_bennett", "accountId": "s04_A3", "role": "account_contact" },
+
+    { "partyId": "s05_james_carter", "accountId": "s05_A1", "role": "owner" },
+    { "partyId": "s05_james_carter", "accountId": "s05_A1", "role": "account_contact" },
+    { "partyId": "s05_hannah_carter", "accountId": "s05_A1", "role": "administrator" },
+    { "partyId": "s05_morgan_lane", "accountId": "s05_A1", "role": "collector" },
+
+    { "partyId": "s06_thomas_foster", "accountId": "s06_A1", "role": "owner" },
+    { "partyId": "s06_thomas_foster", "accountId": "s06_A1", "role": "account_contact" },
+
+    { "partyId": "s07_george_wallace", "accountId": "s07_A1", "role": "owner" },
+    { "partyId": "s07_george_wallace", "accountId": "s07_A1", "role": "account_contact" },
+    { "partyId": "s07_dylan_wallace", "accountId": "s07_A2", "role": "owner" },
+    { "partyId": "s07_dylan_wallace", "accountId": "s07_A2", "role": "account_contact" },
+    { "partyId": "s07_isla_wallace", "accountId": "s07_A3", "role": "owner" },
+    { "partyId": "s07_isla_wallace", "accountId": "s07_A3", "role": "account_contact" },
+    { "partyId": "s07_isla_wallace", "accountId": "s07_A4", "role": "owner" },
+    { "partyId": "s07_isla_wallace", "accountId": "s07_A4", "role": "account_contact" }
+  ],
+
+  "subscription": [
+    { "id": "s01_S1", "accountId": "s01_A1", "scenario": "scenario-1" },
+    { "id": "s01_S2", "accountId": "s01_A1", "scenario": "scenario-1" },
+
+    { "id": "s02_S1", "accountId": "s02_A1", "scenario": "scenario-2" },
+    { "id": "s02_S2", "accountId": "s02_A1", "scenario": "scenario-2" },
+    { "id": "s02_S3", "accountId": "s02_A1", "scenario": "scenario-2" },
+    { "id": "s02_S4", "accountId": "s02_A1", "scenario": "scenario-2" },
+
+    { "id": "s03_S1", "accountId": "s03_A2", "scenario": "scenario-3" },
+    { "id": "s03_S2", "accountId": "s03_A2", "scenario": "scenario-3" },
+    { "id": "s03_S3", "accountId": "s03_A2", "scenario": "scenario-3" },
+    { "id": "s03_S4", "accountId": "s03_A1", "scenario": "scenario-3" },
+    { "id": "s03_S5", "accountId": "s03_A1", "scenario": "scenario-3" },
+
+    { "id": "s04_S1", "accountId": "s04_A1", "scenario": "scenario-4" },
+    { "id": "s04_S2", "accountId": "s04_A1", "scenario": "scenario-4" },
+    { "id": "s04_S3", "accountId": "s04_A1", "scenario": "scenario-4" },
+    { "id": "s04_S4", "accountId": "s04_A1", "scenario": "scenario-4" },
+
+    { "id": "s05_S1", "accountId": "s05_A1", "scenario": "scenario-5" },
+    { "id": "s05_S2", "accountId": "s05_A1", "scenario": "scenario-5" },
+    { "id": "s05_S3", "accountId": "s05_A1", "scenario": "scenario-5" },
+    { "id": "s05_S4", "accountId": "s05_A1", "scenario": "scenario-5" },
+
+    { "id": "s06_S1", "accountId": "s06_A1", "scenario": "scenario-6" },
+    { "id": "s06_S2", "accountId": "s06_A1", "scenario": "scenario-6" },
+    { "id": "s06_S3", "accountId": "s06_A1", "scenario": "scenario-6" },
+
+    { "id": "s07_S1", "accountId": "s07_A1", "scenario": "scenario-7" },
